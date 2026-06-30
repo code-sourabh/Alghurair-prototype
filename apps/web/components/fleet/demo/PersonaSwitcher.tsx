@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useFleet } from '@/lib/fleet/store';
 import type { Persona } from '@/lib/fleet/types';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const HOME: Record<Persona, string> = {
   driver: '/driver',
@@ -15,6 +16,12 @@ const HOME: Record<Persona, string> = {
 export function PersonaSwitcher() {
   const { persona, setPersona } = useFleet();
   const router = useRouter();
+
+  // Prefetch each persona's home route so switching surfaces is instant (no lingering
+  // on the source page while the destination loads).
+  useEffect(() => {
+    for (const href of ['/driver', '/', '/vendor', '/reports']) router.prefetch(href);
+  }, [router]);
 
   const onChange = (v: Persona) => {
     setPersona(v);

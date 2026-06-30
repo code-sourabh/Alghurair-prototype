@@ -53,7 +53,11 @@ const ROLE_LABEL: Record<Persona, string> = {
 export function AppSidebar() {
   const pathname = usePathname();
   const { persona } = useFleet();
-  const items = NAV[persona];
+  // The sidebar only renders on web routes; if persona is momentarily 'driver'
+  // (during a switch, or persisted from a prior session) fall back to a web persona
+  // so the nav is never empty.
+  const navPersona: Persona = persona === 'driver' ? 'fleet_manager' : persona;
+  const items = NAV[navPersona];
 
   return (
     <Sidebar>
@@ -67,7 +71,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{ROLE_LABEL[persona]}</SidebarGroupLabel>
+          <SidebarGroupLabel>{ROLE_LABEL[navPersona]}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
