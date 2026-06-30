@@ -5,6 +5,7 @@ import { Snowflake } from 'lucide-react';
 
 import { useFleet } from '@/lib/fleet/store';
 import { docStatus } from '@/lib/fleet/permit-status';
+import { formatAED, formatKm, formatDate } from '@/lib/fleet/format';
 import type { Vehicle, VehicleType, DocumentType } from '@/lib/fleet/types';
 import { StatusBadge } from '@/components/fleet/StatusBadge';
 import { Topbar } from '@/components/app-shell/Topbar';
@@ -34,12 +35,6 @@ const DOC_TYPE_LABEL: Record<DocumentType, string> = {
   chiller: 'Chiller',
 };
 
-const aed = new Intl.NumberFormat('en-AE', {
-  style: 'currency',
-  currency: 'AED',
-  maximumFractionDigits: 0,
-});
-
 export default function VehiclesPage() {
   const { vehicles, documents } = useFleet();
   const [search, setSearch] = useState('');
@@ -65,6 +60,8 @@ export default function VehiclesPage() {
         {/* Controls */}
         <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
           <Input
+            id='vehicle-search'
+            aria-label='Search vehicles'
             placeholder='Search by ID, name, or plant…'
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -109,7 +106,7 @@ export default function VehiclesPage() {
                   </TableCell>
                   <TableCell>{VEHICLE_TYPE_LABEL[v.type]}</TableCell>
                   <TableCell>{v.plant}</TableCell>
-                  <TableCell>{v.mileageKm.toLocaleString()} km</TableCell>
+                  <TableCell>{formatKm(v.mileageKm)}</TableCell>
                   <TableCell>
                     {v.coldChain ? (
                       <Snowflake className='text-primary h-4 w-4' />
@@ -156,10 +153,10 @@ export default function VehiclesPage() {
                     ['Age', `${selected.ageYears} yrs`],
                     ['Plant', selected.plant],
                     ['Status', <StatusBadge key='status' status={selected.status} />],
-                    ['Mileage', `${selected.mileageKm.toLocaleString()} km`],
-                    ['Service interval', `${selected.serviceIntervalKm.toLocaleString()} km`],
-                    ['Purchase price', aed.format(selected.purchasePrice)],
-                    ['Current value', aed.format(selected.currentValue)],
+                    ['Mileage', formatKm(selected.mileageKm)],
+                    ['Service interval', formatKm(selected.serviceIntervalKm)],
+                    ['Purchase price', formatAED(selected.purchasePrice)],
+                    ['Current value', formatAED(selected.currentValue)],
                   ] as [string, React.ReactNode][]
                 ).map(([label, value]) => (
                   <div key={label}>
@@ -172,14 +169,13 @@ export default function VehiclesPage() {
               {/* Service due notice */}
               {serviceDue && (
                 <p className='text-destructive mt-3 text-sm font-medium'>
-                  Service overdue — {(selected.mileageKm - selected.lastServiceKm).toLocaleString()} km since last
-                  service.
+                  Service overdue — {formatKm(selected.mileageKm - selected.lastServiceKm)} since last service.
                 </p>
               )}
               {!serviceDue && (
                 <p className='text-muted-foreground mt-3 text-sm'>
-                  Next service in{' '}
-                  {(selected.serviceIntervalKm - (selected.mileageKm - selected.lastServiceKm)).toLocaleString()} km.
+                  Next service in {formatKm(selected.serviceIntervalKm - (selected.mileageKm - selected.lastServiceKm))}
+                  .
                 </p>
               )}
 
@@ -199,7 +195,7 @@ export default function VehiclesPage() {
                           {DOC_TYPE_LABEL[d.type]}
                           {d.emirate ? ` — ${d.emirate}` : ''}
                         </div>
-                        <div className='text-muted-foreground text-xs'>Expires {d.expiry}</div>
+                        <div className='text-muted-foreground text-xs'>Expires {formatDate(d.expiry)}</div>
                       </div>
                       <StatusBadge status={docStatus(d.expiry)} />
                     </div>
