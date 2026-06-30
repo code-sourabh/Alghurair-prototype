@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useFleet } from '@/lib/fleet/store';
 import { formatAED, formatDate } from '@/lib/fleet/format';
 import type { MaintenanceRequest, RequestStatus, RequestType, Severity } from '@/lib/fleet/types';
+import { REQUEST_TYPE_LABELS, SEVERITY_LABELS } from '@/lib/fleet/labels';
 import { StatusBadge } from '@/components/fleet/StatusBadge';
 import { Topbar } from '@/components/app-shell/Topbar';
 
@@ -24,24 +25,11 @@ import { Badge } from '@repo/ui/components/badge';
 
 // ── Labels ──────────────────────────────────────────────────────────────────
 
-const TYPE_LABEL: Record<RequestType, string> = {
-  electrical: 'Electrical',
-  mechanical: 'Mechanical',
-  body: 'Body',
-  chiller: 'Chiller',
-  other: 'Other',
-};
-
 const STATUS_LABEL: Record<RequestStatus, string> = {
   new: 'New',
   assigned: 'Assigned',
   in_progress: 'In progress',
   resolved: 'Resolved',
-};
-
-const SEVERITY_LABEL: Record<Severity, string> = {
-  low: 'Low',
-  medium: 'Medium',
 };
 
 // ── Page ────────────────────────────────────────────────────────────────────
@@ -121,9 +109,9 @@ export default function RequestsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='all'>All types</SelectItem>
-              {(Object.keys(TYPE_LABEL) as RequestType[]).map((t) => (
+              {(Object.keys(REQUEST_TYPE_LABELS) as RequestType[]).map((t) => (
                 <SelectItem key={t} value={t}>
-                  {TYPE_LABEL[t]}
+                  {REQUEST_TYPE_LABELS[t]}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -135,9 +123,9 @@ export default function RequestsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='all'>All severities</SelectItem>
-              {(Object.keys(SEVERITY_LABEL) as Severity[]).map((sv) => (
+              {(Object.keys(SEVERITY_LABELS) as Severity[]).map((sv) => (
                 <SelectItem key={sv} value={sv}>
-                  {SEVERITY_LABEL[sv]}
+                  {SEVERITY_LABELS[sv]}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -163,19 +151,32 @@ export default function RequestsPage() {
               {filtered.map((r) => {
                 const v = vehicleMap.get(r.vehicleId);
                 return (
-                  <TableRow key={r.id} className='cursor-pointer' onClick={() => openDialog(r)}>
+                  <TableRow
+                    key={r.id}
+                    className='cursor-pointer'
+                    role='button'
+                    tabIndex={0}
+                    onClick={() => openDialog(r)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') openDialog(r);
+                      if (e.key === ' ') {
+                        e.preventDefault();
+                        openDialog(r);
+                      }
+                    }}
+                  >
                     <TableCell>
                       <div className='font-mono text-sm'>{r.vehicleId}</div>
                       {v && <div className='text-muted-foreground text-xs'>{v.name}</div>}
                     </TableCell>
-                    <TableCell>{TYPE_LABEL[r.type]}</TableCell>
+                    <TableCell>{REQUEST_TYPE_LABELS[r.type]}</TableCell>
                     <TableCell>
                       {r.severity === 'medium' ? (
                         <Badge variant='outline' className='border-destructive/40 text-destructive'>
-                          {SEVERITY_LABEL[r.severity]}
+                          {SEVERITY_LABELS[r.severity]}
                         </Badge>
                       ) : (
-                        <Badge variant='secondary'>{SEVERITY_LABEL[r.severity]}</Badge>
+                        <Badge variant='secondary'>{SEVERITY_LABELS[r.severity]}</Badge>
                       )}
                     </TableCell>
                     <TableCell className='max-w-[280px] truncate'>{r.description}</TableCell>
@@ -207,7 +208,7 @@ export default function RequestsPage() {
             <>
               <DialogHeader>
                 <DialogTitle>
-                  {selected.vehicleId} — {TYPE_LABEL[selected.type]}
+                  {selected.vehicleId} — {REQUEST_TYPE_LABELS[selected.type]}
                 </DialogTitle>
                 <DialogDescription>
                   {selectedVehicle ? `${selectedVehicle.name} · ${selectedVehicle.plant}` : selected.vehicleId}
@@ -221,10 +222,10 @@ export default function RequestsPage() {
                   <dd className='mt-0.5'>
                     {selected.severity === 'medium' ? (
                       <Badge variant='outline' className='border-destructive/40 text-destructive'>
-                        {SEVERITY_LABEL[selected.severity]}
+                        {SEVERITY_LABELS[selected.severity]}
                       </Badge>
                     ) : (
-                      <Badge variant='secondary'>{SEVERITY_LABEL[selected.severity]}</Badge>
+                      <Badge variant='secondary'>{SEVERITY_LABELS[selected.severity]}</Badge>
                     )}
                   </dd>
                 </div>

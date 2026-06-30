@@ -7,6 +7,7 @@ import { useFleet } from '@/lib/fleet/store';
 import { daysUntil, expiresWithin, docStatus } from '@/lib/fleet/permit-status';
 import { formatDate } from '@/lib/fleet/format';
 import type { DocumentType, VehicleDocument } from '@/lib/fleet/types';
+import { DOC_LABELS } from '@/lib/fleet/labels';
 
 import { Topbar } from '@/components/app-shell/Topbar';
 import { MetricTiles } from '@/components/fleet/MetricTiles';
@@ -16,15 +17,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/components/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/components/select';
 import { Button } from '@repo/ui/components/button';
-
-const DOC_LABELS: Record<DocumentType, string> = {
-  road_permit: 'Road permit',
-  license: 'License',
-  trailer: 'Trailer',
-  branding: 'Branding',
-  mulkea: 'Mulkea',
-  chiller: 'Chiller',
-};
 
 const DOC_TYPES = Object.keys(DOC_LABELS) as DocumentType[];
 
@@ -113,10 +105,10 @@ export default function PermitsPage() {
   const filteredActionDocs = useMemo(() => {
     return actionDocs.filter((d) => {
       if (typeFilter !== 'all' && d.type !== typeFilter) return false;
-      if (statusFilter !== 'all' && docStatus(d.expiry) !== statusFilter) return false;
+      if (statusFilter !== 'all' && docStatus(d.expiry, config.alertWindowFarDays) !== statusFilter) return false;
       return true;
     });
-  }, [actionDocs, typeFilter, statusFilter]);
+  }, [actionDocs, typeFilter, statusFilter, config.alertWindowFarDays]);
 
   const renewalMap = useMemo(() => new Map(renewals.map((r) => [r.documentId, r])), [renewals]);
 

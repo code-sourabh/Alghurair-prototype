@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 import { useFleet } from '@/lib/fleet/store';
 import type { RequestType, RoutingRule } from '@/lib/fleet/types';
+import { REQUEST_TYPE_LABELS } from '@/lib/fleet/labels';
 import { Topbar } from '@/components/app-shell/Topbar';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@repo/ui/components/card';
@@ -13,14 +14,6 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Input } from '@repo/ui/components/input';
 import { Label } from '@repo/ui/components/label';
 import { Button } from '@repo/ui/components/button';
-
-const REQUEST_TYPE_LABEL: Record<RequestType, string> = {
-  electrical: 'Electrical',
-  mechanical: 'Mechanical',
-  body: 'Body',
-  chiller: 'Chiller',
-  other: 'Other',
-};
 
 const REQUEST_TYPES: RequestType[] = ['electrical', 'mechanical', 'body', 'chiller', 'other'];
 
@@ -81,10 +74,10 @@ export default function ConfigPage() {
               <TableBody>
                 {REQUEST_TYPES.map((rt) => (
                   <TableRow key={rt}>
-                    <TableCell>{REQUEST_TYPE_LABEL[rt]}</TableCell>
+                    <TableCell>{REQUEST_TYPE_LABELS[rt]}</TableCell>
                     <TableCell>
                       <Select value={getRuleVendor(rt)} onValueChange={(v) => setRuleVendor(rt, v)}>
-                        <SelectTrigger aria-label={`Vendor for ${REQUEST_TYPE_LABEL[rt]}`} className='w-48'>
+                        <SelectTrigger aria-label={`Vendor for ${REQUEST_TYPE_LABELS[rt]}`} className='w-48'>
                           <SelectValue placeholder='Select vendor' />
                         </SelectTrigger>
                         <SelectContent>

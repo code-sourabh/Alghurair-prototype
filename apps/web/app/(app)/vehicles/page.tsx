@@ -6,7 +6,8 @@ import { Snowflake } from 'lucide-react';
 import { useFleet } from '@/lib/fleet/store';
 import { docStatus } from '@/lib/fleet/permit-status';
 import { formatAED, formatKm, formatDate } from '@/lib/fleet/format';
-import type { Vehicle, VehicleType, DocumentType } from '@/lib/fleet/types';
+import type { Vehicle, VehicleType } from '@/lib/fleet/types';
+import { DOC_LABELS, VEHICLE_TYPE_LABELS } from '@/lib/fleet/labels';
 import { StatusBadge } from '@/components/fleet/StatusBadge';
 import { Topbar } from '@/components/app-shell/Topbar';
 
@@ -15,25 +16,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Input } from '@repo/ui/components/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/components/select';
 
-const VEHICLE_TYPE_LABEL: Record<VehicleType, string> = {
-  big_truck: 'Big truck',
-  small_truck: 'Small truck',
-  van: 'Van',
-  tickle_truck: 'Tickle truck',
-  tanker: 'Tanker',
-  equipment: 'Equipment',
-};
-
-const VEHICLE_TYPES = Object.keys(VEHICLE_TYPE_LABEL) as VehicleType[];
-
-const DOC_TYPE_LABEL: Record<DocumentType, string> = {
-  road_permit: 'Road permit',
-  license: 'License',
-  trailer: 'Trailer',
-  branding: 'Branding',
-  mulkea: 'Mulkea',
-  chiller: 'Chiller',
-};
+const VEHICLE_TYPES = Object.keys(VEHICLE_TYPE_LABELS) as VehicleType[];
 
 export default function VehiclesPage() {
   const { vehicles, documents } = useFleet();
@@ -75,7 +58,7 @@ export default function VehiclesPage() {
               <SelectItem value='all'>All types</SelectItem>
               {VEHICLE_TYPES.map((t) => (
                 <SelectItem key={t} value={t}>
-                  {VEHICLE_TYPE_LABEL[t]}
+                  {VEHICLE_TYPE_LABELS[t]}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -98,13 +81,26 @@ export default function VehiclesPage() {
             </TableHeader>
             <TableBody>
               {filtered.map((v) => (
-                <TableRow key={v.id} className='cursor-pointer' onClick={() => setSelected(v)}>
+                <TableRow
+                  key={v.id}
+                  className='cursor-pointer'
+                  role='button'
+                  tabIndex={0}
+                  onClick={() => setSelected(v)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') setSelected(v);
+                    if (e.key === ' ') {
+                      e.preventDefault();
+                      setSelected(v);
+                    }
+                  }}
+                >
                   <TableCell className='font-mono text-sm'>{v.id}</TableCell>
                   <TableCell>
                     <div>{v.name}</div>
                     <div className='text-muted-foreground text-xs'>{v.model}</div>
                   </TableCell>
-                  <TableCell>{VEHICLE_TYPE_LABEL[v.type]}</TableCell>
+                  <TableCell>{VEHICLE_TYPE_LABELS[v.type]}</TableCell>
                   <TableCell>{v.plant}</TableCell>
                   <TableCell>{formatKm(v.mileageKm)}</TableCell>
                   <TableCell>
@@ -148,7 +144,7 @@ export default function VehiclesPage() {
                 {(
                   [
                     ['Model', selected.model],
-                    ['Type', VEHICLE_TYPE_LABEL[selected.type]],
+                    ['Type', VEHICLE_TYPE_LABELS[selected.type]],
                     ['Year', selected.year],
                     ['Age', `${selected.ageYears} yrs`],
                     ['Plant', selected.plant],
@@ -192,7 +188,7 @@ export default function VehiclesPage() {
                     >
                       <div>
                         <div className='font-medium'>
-                          {DOC_TYPE_LABEL[d.type]}
+                          {DOC_LABELS[d.type]}
                           {d.emirate ? ` — ${d.emirate}` : ''}
                         </div>
                         <div className='text-muted-foreground text-xs'>Expires {formatDate(d.expiry)}</div>

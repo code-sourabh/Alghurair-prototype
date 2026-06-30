@@ -5,7 +5,8 @@ import { toast } from 'sonner';
 
 import { useFleet } from '@/lib/fleet/store';
 import { formatAED, formatDate } from '@/lib/fleet/format';
-import type { MaintenanceRequest, RequestType, Severity } from '@/lib/fleet/types';
+import type { MaintenanceRequest } from '@/lib/fleet/types';
+import { REQUEST_TYPE_LABELS, SEVERITY_LABELS } from '@/lib/fleet/labels';
 import { StatusBadge } from '@/components/fleet/StatusBadge';
 import { Topbar } from '@/components/app-shell/Topbar';
 
@@ -24,21 +25,6 @@ import { Input } from '@repo/ui/components/input';
 import { Textarea } from '@repo/ui/components/textarea';
 import { Label } from '@repo/ui/components/label';
 import { Button } from '@repo/ui/components/button';
-
-// ── Labels ──────────────────────────────────────────────────────────────────
-
-const TYPE_LABEL: Record<RequestType, string> = {
-  electrical: 'Electrical',
-  mechanical: 'Mechanical',
-  body: 'Body',
-  chiller: 'Chiller',
-  other: 'Other',
-};
-
-const SEVERITY_LABEL: Record<Severity, string> = {
-  low: 'Low',
-  medium: 'Medium',
-};
 
 // Converts an ISO string to the value expected by <input type="datetime-local">
 function toDatetimeLocal(iso: string): string {
@@ -179,8 +165,8 @@ export default function VendorPage() {
                       <div className='font-mono text-sm'>{r.vehicleId}</div>
                       {v && <div className='text-muted-foreground text-xs'>{v.name}</div>}
                     </TableCell>
-                    <TableCell>{TYPE_LABEL[r.type]}</TableCell>
-                    <TableCell>{SEVERITY_LABEL[r.severity]}</TableCell>
+                    <TableCell>{REQUEST_TYPE_LABELS[r.type]}</TableCell>
+                    <TableCell>{SEVERITY_LABELS[r.severity]}</TableCell>
                     <TableCell>
                       <StatusBadge status={r.status} />
                     </TableCell>
@@ -208,7 +194,7 @@ export default function VendorPage() {
             <>
               <DialogHeader>
                 <DialogTitle>
-                  {selected.vehicleId} — {TYPE_LABEL[selected.type]}
+                  {selected.vehicleId} — {REQUEST_TYPE_LABELS[selected.type]}
                 </DialogTitle>
                 <DialogDescription>
                   {selectedVehicle ? `${selectedVehicle.name} · ${selectedVehicle.plant}` : selected.vehicleId}

@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 
 import { useFleet } from '@/lib/fleet/store';
 import type { RequestType } from '@/lib/fleet/types';
+import { REQUEST_TYPE_LABELS } from '@/lib/fleet/labels';
 
 import { Button } from '@repo/ui/components/button';
 import { Input } from '@repo/ui/components/input';
@@ -23,14 +24,6 @@ const schema = z.object({
 });
 
 type FormValues = z.infer<typeof schema>;
-
-const TYPE_LABEL: Record<RequestType, string> = {
-  electrical: 'Electrical',
-  mechanical: 'Mechanical',
-  body: 'Body',
-  chiller: 'Chiller',
-  other: 'Other',
-};
 
 interface RaiseRequestFormProps {
   vehicleId: string;
@@ -79,9 +72,9 @@ export function RaiseRequestForm({ vehicleId, submittedBy, onDone }: RaiseReques
             <SelectValue placeholder='Select type…' />
           </SelectTrigger>
           <SelectContent>
-            {(Object.keys(TYPE_LABEL) as RequestType[]).map((t) => (
+            {(Object.keys(REQUEST_TYPE_LABELS) as RequestType[]).map((t) => (
               <SelectItem key={t} value={t}>
-                {TYPE_LABEL[t]}
+                {REQUEST_TYPE_LABELS[t]}
               </SelectItem>
             ))}
           </SelectContent>

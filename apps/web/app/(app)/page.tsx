@@ -5,7 +5,8 @@ import Link from 'next/link';
 
 import { useFleet } from '@/lib/fleet/store';
 import { daysUntil, expiresWithin, docStatus } from '@/lib/fleet/permit-status';
-import type { DocumentType, VehicleDocument } from '@/lib/fleet/types';
+import type { VehicleDocument } from '@/lib/fleet/types';
+import { DOC_LABELS } from '@/lib/fleet/labels';
 
 import { Topbar } from '@/components/app-shell/Topbar';
 import { MetricTiles } from '@/components/fleet/MetricTiles';
@@ -13,15 +14,6 @@ import { StatusBadge } from '@/components/fleet/StatusBadge';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 import { Button } from '@repo/ui/components/button';
-
-const DOC_LABELS: Record<DocumentType, string> = {
-  road_permit: 'Road permit',
-  license: 'License',
-  trailer: 'Trailer',
-  branding: 'Branding',
-  mulkea: 'Mulkea',
-  chiller: 'Chiller',
-};
 
 function docLabel(d: VehicleDocument): string {
   return `${DOC_LABELS[d.type]}${d.emirate ? ' — ' + d.emirate : ''}`;
@@ -157,7 +149,7 @@ export default function DashboardPage() {
                         <span className='text-muted-foreground ml-2 text-sm'>{docLabel(d)}</span>
                         <span className='text-muted-foreground ml-1 text-xs'>· {relativeDays(d.expiry)}</span>
                       </div>
-                      <StatusBadge status={docStatus(d.expiry)} />
+                      <StatusBadge status={docStatus(d.expiry, config.alertWindowFarDays)} />
                     </li>
                   ))}
                 </ul>

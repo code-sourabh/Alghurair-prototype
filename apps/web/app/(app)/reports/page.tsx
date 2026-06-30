@@ -5,22 +5,13 @@ import { useMemo } from 'react';
 import { useFleet } from '@/lib/fleet/store';
 import { daysUntil, docStatus } from '@/lib/fleet/permit-status';
 import { formatDate } from '@/lib/fleet/format';
-import type { DocumentType } from '@/lib/fleet/types';
+import { DOC_LABELS } from '@/lib/fleet/labels';
 
 import { Topbar } from '@/components/app-shell/Topbar';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/components/table';
 import { Badge } from '@repo/ui/components/badge';
-
-const DOC_LABELS: Record<DocumentType, string> = {
-  road_permit: 'Road permit',
-  license: 'License',
-  trailer: 'Trailer',
-  branding: 'Branding',
-  mulkea: 'Mulkea',
-  chiller: 'Chiller',
-};
 
 export default function ReportsPage() {
   const { vendors, requests, documents, vehicles } = useFleet();
