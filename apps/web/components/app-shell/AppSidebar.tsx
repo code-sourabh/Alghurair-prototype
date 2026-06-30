@@ -12,36 +12,65 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@repo/ui/components/sidebar';
-import { LayoutDashboard, Settings, ShoppingCart, Sparkles, Users } from 'lucide-react';
+import { BarChart3, ClipboardList, FileBadge, LayoutDashboard, Settings, Truck, Wrench } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useFleet } from '@/lib/fleet/store';
+import type { Persona } from '@/lib/fleet/types';
 
-const NAV_ITEMS = [
-  { title: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { title: 'Customers', href: '/customers', icon: Users },
-  { title: 'Orders', href: '/orders', icon: ShoppingCart },
-  { title: 'Settings', href: '/settings', icon: Settings },
-];
+interface NavItem {
+  title: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+const NAV: Record<Persona, NavItem[]> = {
+  fleet_manager: [
+    { title: 'Dashboard', href: '/', icon: LayoutDashboard },
+    { title: 'Vehicles', href: '/vehicles', icon: Truck },
+    { title: 'Requests', href: '/requests', icon: Wrench },
+    { title: 'Permits', href: '/permits', icon: FileBadge },
+    { title: 'Config', href: '/config', icon: Settings },
+  ],
+  management: [
+    { title: 'Dashboard', href: '/', icon: LayoutDashboard },
+    { title: 'Vehicles', href: '/vehicles', icon: Truck },
+    { title: 'Permits', href: '/permits', icon: FileBadge },
+    { title: 'Reports', href: '/reports', icon: BarChart3 },
+  ],
+  vendor: [{ title: 'My Work', href: '/vendor', icon: ClipboardList }],
+  driver: [],
+};
+
+const ROLE_LABEL: Record<Persona, string> = {
+  fleet_manager: 'Fleet Manager',
+  management: 'Management',
+  vendor: 'Vendor',
+  driver: 'Driver',
+};
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { persona } = useFleet();
+  const items = NAV[persona];
 
   return (
     <Sidebar>
       <SidebarHeader>
         <div className='flex items-center gap-2 px-2 py-1.5'>
           <div className='bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-md'>
-            <Sparkles className='size-4' />
+            <Truck className='size-4' />
           </div>
-          <span className='text-sm font-semibold'>Prototype</span>
+          <span className='text-sm font-semibold'>Al Ghurair Fleet</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          <SidebarGroupLabel>{ROLE_LABEL[persona]}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {NAV_ITEMS.map((item) => {
+              {items.map((item) => {
                 const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
                 return (
                   <SidebarMenuItem key={item.href}>
@@ -59,7 +88,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <div className='text-muted-foreground px-2 py-1 text-xs'>Mock data · no backend</div>
+        <div className='text-muted-foreground px-2 py-1 text-xs'>Prototype · mock data</div>
       </SidebarFooter>
     </Sidebar>
   );
