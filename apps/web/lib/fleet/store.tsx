@@ -62,6 +62,7 @@ interface FleetContextValue extends PersistedState {
   advanceRequest: (requestId: string) => void;
   sendRenewal: (documentId: string) => void;
   advanceRenewal: (renewalId: string) => void;
+  setServiceInterval: (vehicleId: string, serviceIntervalKm: number) => void;
   updateConfig: (config: DemoConfig) => void;
   vendorRespond: (requestId: string, input: { quotedPrice: number; visitTime: string; vendorNotes?: string }) => void;
   resetDemo: () => void;
@@ -156,6 +157,13 @@ export function FleetProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, vehicles: s.vehicles.map((v) => (v.id === vehicleId ? { ...v, mileageKm } : v)) }));
   };
 
+  const setServiceInterval: FleetContextValue['setServiceInterval'] = (vehicleId, serviceIntervalKm) => {
+    setState((s) => ({
+      ...s,
+      vehicles: s.vehicles.map((v) => (v.id === vehicleId ? { ...v, serviceIntervalKm } : v)),
+    }));
+  };
+
   const logTemperature: FleetContextValue['logTemperature'] = (vehicleId, tempC) => {
     setState((s) => ({ ...s, vehicles: s.vehicles.map((v) => (v.id === vehicleId ? { ...v, lastTempC: tempC } : v)) }));
   };
@@ -219,6 +227,7 @@ export function FleetProvider({ children }: { children: ReactNode }) {
         setPersona,
         submitRequest,
         updateMileage,
+        setServiceInterval,
         logTemperature,
         assignVendor,
         advanceRequest,
