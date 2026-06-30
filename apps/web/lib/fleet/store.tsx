@@ -1,7 +1,7 @@
 // apps/web/lib/fleet/store.tsx
 'use client';
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { localStore, mockId } from '@/lib/mock';
 import { vehicles as seedVehicles } from './data/vehicles';
 import { documents as seedDocuments } from './data/documents';
@@ -70,13 +70,26 @@ interface FleetContextValue extends PersistedState {
 const FleetContext = createContext<FleetContextValue | null>(null);
 
 export function FleetProvider({ children }: { children: ReactNode }) {
-  // ponytail: lazy init reads localStorage on first render; localStore is SSR-safe so no effect needed
-  const [persona, setPersonaState] = useState<Persona>(
-    () => localStore.get<Persona | null>(STORE_KEY + ':persona', null) ?? 'fleet_manager',
-  );
-  const [state, setState] = useState<PersistedState>(() => localStore.get<PersistedState>(STORE_KEY, seed()));
+  // Initialize from seed on BOTH server and first client render so the SSR markup
+  // matches (no hydration mismatch); hydrate persisted demo state after mount.
+  const [persona, setPersonaState] = useState<Persona>('fleet_manager');
+  const [state, setState] = useState<PersistedState>(seed);
+
+  const firstPersist = useRef(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- SSR-safe post-mount hydration of persisted demo state
+    setState(localStore.get<PersistedState>(STORE_KEY, seed()));
+    const p = localStore.get<Persona | null>(STORE_KEY + ':persona', null);
+    if (p) setPersonaState(p);
+  }, []);
+
+  useEffect(() => {
+    // Skip the first run (seed) so we never transiently overwrite persisted state before hydration lands.
+    if (firstPersist.current) {
+      firstPersist.current = false;
+      return;
+    }
     localStore.set(STORE_KEY, state);
   }, [state]);
 
