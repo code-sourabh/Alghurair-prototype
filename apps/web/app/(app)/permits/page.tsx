@@ -238,7 +238,7 @@ export default function PermitsPage() {
                           <div className='text-muted-foreground text-xs'>{relativeDays(d.expiry)}</div>
                         </TableCell>
                         <TableCell>
-                          <StatusBadge status={docStatus(d.expiry)} />
+                          <StatusBadge status={docStatus(d.expiry, config.alertWindowFarDays)} />
                         </TableCell>
                         <TableCell>
                           {renewal ? (
